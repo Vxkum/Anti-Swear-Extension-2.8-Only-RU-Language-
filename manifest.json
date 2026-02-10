@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "AntiSwear Filter",
+  "version": "1.0",
+  "description": "Расширение для замены ненормативной лексики",
+  "permissions": [
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html"
+}

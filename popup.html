@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 300px; padding: 20px; font-family: Arial, sans-serif; transition: background-color 0.3s, color 0.3s; }
+body.light { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+body.dark { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #e0e0e0; }
+
+.header { text-align: center; margin-bottom: 18px; }
+.header h3 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.header p { font-size: 12px; opacity: 0.8; }
+
+.control-group {
+  background: rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.control-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.control-row:last-child { margin-bottom: 0; }
+.control-label { font-size: 14px; font-weight: 500; }
+.control-sub { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+
+/* Toggle */
+.toggle-switch { position: relative; width: 50px; height: 26px; flex-shrink: 0; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: 0.3s; border-radius: 26px; }
+.slider:before { position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
+input:checked + .slider { background-color: #4CAF50; }
+input:checked + .slider:before { transform: translateX(24px); }
+
+/* Theme button */
+.theme-btn { width: 50px; height: 26px; border-radius: 26px; border: none; background: rgba(255,255,255,0.2); cursor: pointer; font-size: 14px; transition: all 0.3s; }
+
+/* Blur mode selector */
+.mode-group { display: flex; gap: 8px; }
+.mode-btn {
+  flex: 1;
+  padding: 7px 4px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.1);
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  font-weight: 500;
+}
+.mode-btn:hover { background: rgba(255,255,255,0.2); }
+.mode-btn.active { border-color: #4CAF50; background: rgba(76,175,80,0.25); }
+
+/* Color section */
+.color-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.color-label { font-size: 13px; font-weight: 500; }
+.color-presets { display: flex; gap: 6px; align-items: center; }
+.color-preset {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.color-preset:hover { transform: scale(1.2); }
+.color-preset.active { border-color: #fff; transform: scale(1.15); }
+
+.color-picker-wrap { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.color-picker-wrap label { font-size: 12px; opacity: 0.85; }
+#customColor { width: 36px; height: 28px; border: none; border-radius: 6px; cursor: pointer; padding: 1px; background: none; }
+
+/* Status */
+.status { background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px; text-align: center; font-size: 12px; margin-top: 10px; }
+.status.active { background: rgba(76,175,80,0.3); }
+.status.inactive { background: rgba(244,67,54,0.3); }
+
+/* Hidden util */
+.hidden { display: none; }
+</style>
+</head>
+<body class='light'>
+
+<div class='header'>
+  <h3>🧹 AntiSwear</h3>
+  <p>Фильтр ненормативной лексики</p>
+</div>
+
+<!-- Main controls -->
+<div class='control-group'>
+  <div class='control-row'>
+    <span class='control-label'>Фильтр</span>
+    <label class='toggle-switch'>
+      <input type='checkbox' id='toggleFilter' checked>
+      <span class='slider'></span>
+    </label>
+  </div>
+  <div class='control-row'>
+    <span class='control-label'>Тема</span>
+    <button id='themeBtn' class='theme-btn'>🌙</button>
+  </div>
+</div>
+
+<!-- Blur mode -->
+<div class='control-group'>
+  <div class='control-label' style='margin-bottom:10px'>Режим маскировки</div>
+  <div class='mode-group'>
+    <button class='mode-btn active' data-mode='blur' id='modeBlur'>
+      🌫 Размытие
+    </button>
+    <button class='mode-btn' data-mode='solid' id='modeSolid'>
+      ⬛ Замазка
+    </button>
+  </div>
+</div>
+
+<!-- Color picker (only for solid mode) -->
+<div class='control-group' id='colorSection' style='display:none'>
+  <div class='color-label' style='margin-bottom:10px'>Цвет замазки</div>
+  <div class='color-row'>
+    <div class='color-presets'>
+      <div class='color-preset active' data-color='#000000' style='background:#000000' title='Чёрный'></div>
+      <div class='color-preset' data-color='#ff0000' style='background:#ff0000' title='Красный'></div>
+      <div class='color-preset' data-color='#1a73e8' style='background:#1a73e8' title='Синий'></div>
+      <div class='color-preset' data-color='#34a853' style='background:#34a853' title='Зелёный'></div>
+      <div class='color-preset' data-color='#fbbc04' style='background:#fbbc04' title='Жёлтый'></div>
+      <div class='color-preset' data-color='#ffffff' style='background:#ffffff; border-color: rgba(255,255,255,0.8)' title='Белый'></div>
+    </div>
+  </div>
+  <div class='color-picker-wrap'>
+    <label for='customColor'>Свой цвет:</label>
+    <input type='color' id='customColor' value='#000000'>
+  </div>
+</div>
+
+<div id='status' class='status active'>✅ Фильтр активен</div>
+
+<script src='popup.js'></script>
+</body>
+</html>
